@@ -1,0 +1,76 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # 🧠 BACKEND (FastAPI + YOLOv8)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: thychantha/camcurrency-backend:latest
+    container_name: camcurrency_backend
+    volumes:
+      - ./backend/app:/app/app # Hot Reloading for Dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - MODEL_PATH=${MODEL_PATH}
+      - ENV_STATE=${ENV_STATE}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - currency_net
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # 🎨 FRONTEND (React + Vite)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: thychantha/camcurrency-frontend:latest
+    container_name: camcurrency_frontend
+    volumes:
+      - ./frontend/src:/app/src # Hot Reloading
+    ports:
+      - "5173:5173" # Vite default port
+    environment:
+      - VITE_API_BASE_URL=${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+    depends_on:
+      - backend
+    networks:
+      - currency_net
+
+  # ---------------------------------------------------------------------------
+  # 💾 DATABASE (PostgreSQL)
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: camcurrency_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - currency_net
+
+networks:
+  currency_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
