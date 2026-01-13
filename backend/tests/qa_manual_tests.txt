@@ -1,0 +1,34 @@
+
+# 🧪 CamCurrency API Test Suite
+# Manual QA Verification Steps
+
+# 1. System Health Check
+# Goal: Verify Database and API are alive.
+# URL: http://localhost:8000/api/v1/database
+# Method: GET
+# Expected Result: 200 OK, {"status": "connected", "database": "active"}
+
+# 2. Upload Currency Image
+# Goal: Valid image detection
+# URL: http://localhost:8000/api/v1/detect
+# Method: POST
+# Key: file (Type: File) -> Select an image of 10000 Riel
+# Expected Result: 
+#   200 OK
+#   JSON: {
+#       "total_value": 10000,
+#       "detections": [{ "class": "10000", "confidence": 0.95 }]
+#   }
+
+# 3. Invalid File Type
+# Goal: Verify error handling
+# URL: http://localhost:8000/api/v1/detect
+# Method: POST
+# Key: file -> Select a .pdf or .txt file
+# Expected Result: 400 Bad Request, "Invalid file type"
+
+# 4. View History
+# Goal: Verify persistence
+# URL: http://localhost:8000/api/v1/history
+# Method: GET
+# Expected Result: 200 OK, List of past detections ordered by date.
