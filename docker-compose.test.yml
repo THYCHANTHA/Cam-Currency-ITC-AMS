@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  # ---------------------------------------------------------------------------
+  # 🧠 BACKEND (Running from Cloud Image)
+  # ---------------------------------------------------------------------------
+  backend:
+    image: thychantha/camcurrency-backend:latest
+    container_name: camcurrency_backend_test
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://thychantha:securepassword123@db:5432/camcurrency_db
+      - MODEL_PATH=app/models/best.pt
+      - ENV_STATE=production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - currency_net
+
+  # ---------------------------------------------------------------------------
+  # 🎨 FRONTEND (Running from Cloud Image)
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: thychantha/camcurrency-frontend:latest
+    container_name: camcurrency_frontend_test
+    ports:
+      - "5173:80" # Maps port 80 (nginx) inside to 5173 outside
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - currency_net
+
+  # ---------------------------------------------------------------------------
+  # 💾 DATABASE
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:15-alpine
+    container_name: camcurrency_db_test
+    environment:
+      - POSTGRES_USER=thychantha
+      - POSTGRES_PASSWORD=securepassword123
+      - POSTGRES_DB=camcurrency_db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U thychantha -d camcurrency_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - currency_net
+
+networks:
+  currency_net:
+    driver: bridge
