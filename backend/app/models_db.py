@@ -8,5 +8,5 @@ class Detection(Base):
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, index=True)
     total_amount = Column(Float)
-    detections_data = Column(JSON)  # Store detailed bounding boxes/classes as JSON
+    detections_data = Column(JSON) # Store detailed bounding boxes/classes as JSON
     created_at = Column(DateTime(timezone=True), server_default=func.now())
