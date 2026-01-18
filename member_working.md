@@ -81,5 +81,6 @@
 | **Phase 4** | React Frontend Development      | **Sovandeth** + **Thaitheang**  | ✅ Completed |
 | **Phase 5** | Database & Security             | **Kimheang**                    | ✅ Completed |
 | **Phase 6** | API Logic & Testing             | **Yuthearylyhour** + **Lyheng** | ✅ Completed |
-| **Phase 7** | Cloud Deployment (DigitalOcean) | **Chantha**                     | ⏳ Next Step |
+| **Phase 7** | Cloud Deployment (DigitalOcean) | **Chantha**                     | ✅ Completed |
 | **Phase 8** | Final Presentation              | All Members                     | ⏳ Pending   |
+
